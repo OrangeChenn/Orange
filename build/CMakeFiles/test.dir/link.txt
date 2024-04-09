@@ -1,0 +1,1 @@
+/usr/bin/c++  -rdynamic -O0 -ggdb -std=c++11 -Wall -Wno-deprecated -Werror -Wno-unused-function -Wno-builtin-macro-redefined CMakeFiles/test.dir/tests/test.cc.o -o /home/chen/Code/C++/Orange/bin/test  -Wl,-rpath,/home/chen/Code/C++/Orange/lib /home/chen/Code/C++/Orange/lib/liborange.so /usr/local/lib/libyaml-cpp.a 
