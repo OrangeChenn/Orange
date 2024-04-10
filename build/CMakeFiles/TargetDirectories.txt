@@ -1,5 +1,0 @@
-/home/chen/Code/C++/Orange/build/CMakeFiles/orange.dir
-/home/chen/Code/C++/Orange/build/CMakeFiles/test.dir
-/home/chen/Code/C++/Orange/build/CMakeFiles/test_config.dir
-/home/chen/Code/C++/Orange/build/CMakeFiles/edit_cache.dir
-/home/chen/Code/C++/Orange/build/CMakeFiles/rebuild_cache.dir

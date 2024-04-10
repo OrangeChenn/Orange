@@ -1,1 +1,0 @@
-/usr/bin/c++ -fPIC  -rdynamic -O0 -ggdb -std=c++11 -Wall -Wno-deprecated -Werror -Wno-unused-function -Wno-builtin-macro-redefined -shared -Wl,-soname,liborange.so -o /home/chen/Code/C++/Orange/lib/liborange.so CMakeFiles/orange.dir/src/log.cc.o CMakeFiles/orange.dir/src/util.cc.o CMakeFiles/orange.dir/src/config.cc.o 
