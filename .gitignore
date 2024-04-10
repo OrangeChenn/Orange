@@ -1,4 +1,5 @@
-build
-bin
+.vscode/
+build/
+bin/
 !bin/conf/
-lib
+lib/
