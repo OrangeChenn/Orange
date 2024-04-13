@@ -10,6 +10,7 @@
 #include <sstream>
 #include <vector>
 
+#include "thread.h"
 #include "singleton.h"
 
 #define ORANGE_LOG_LEVEL(logger, level) \
@@ -138,7 +139,7 @@ public:
     virtual std::string toYamlString() = 0;
 
     void setFormatter(LogFormatter::ptr formatter);
-    LogFormatter::ptr getFormatter() const { return m_formatter; }
+    LogFormatter::ptr getFormatter() const;
     LogLevel::Level getLevel() const { return m_level; }
     void setLevel(LogLevel::Level level) { m_level = level;}
     bool hasFormatter() const { return m_has_formatter; }
@@ -146,6 +147,7 @@ public:
 protected:
     LogLevel::Level m_level = LogLevel::Level::DEBUG;
     LogFormatter::ptr m_formatter;
+    mutable orange::Mutex m_mutex;
     bool m_has_formatter = false;
 };
 
@@ -167,7 +169,7 @@ public:
     void addAppender(LogAppender::ptr appender);
     void delAppender(LogAppender::ptr appender);
     void clearAppender();
-    LogFormatter::ptr getFormatter() { return m_formatter; }
+    LogFormatter::ptr getFormatter();
     void setFormatter(LogFormatter::ptr formatter);
     void setFormatter(const std::string& fmt);
     LogLevel::Level getLevel() const { return m_level; }
@@ -179,6 +181,7 @@ public:
 private:
     std::string m_name;                     // 日志名称
     LogLevel::Level m_level;                // 日志级别
+    orange::Mutex m_mutex;
     std::list<LogAppender::ptr> m_appenders;// Appender集合
     LogFormatter::ptr m_formatter;
     Logger::ptr m_root;
@@ -221,6 +224,7 @@ public:
     void init();
 private:
     std::map<std::string, Logger::ptr> m_loggers;
+    orange::Mutex m_mutex;
     Logger::ptr m_root;
 };
 
