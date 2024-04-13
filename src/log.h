@@ -133,6 +133,7 @@ class LogAppender {
 friend class Logger;
 public:
     typedef std::shared_ptr<LogAppender> ptr;
+    typedef orange::Mutex MutexType;
     // virtual ~LogAppender();
 
     virtual void log(std::shared_ptr<Logger> logger, LogLevel::Level level, LogEvent::ptr event) = 0;
@@ -147,7 +148,7 @@ public:
 protected:
     LogLevel::Level m_level = LogLevel::Level::DEBUG;
     LogFormatter::ptr m_formatter;
-    mutable orange::Mutex m_mutex;
+    mutable MutexType m_mutex;
     bool m_has_formatter = false;
 };
 
@@ -156,6 +157,7 @@ class Logger : public std::enable_shared_from_this<Logger> {
 friend class LoggerManager;
 public:
     typedef std::shared_ptr<Logger> ptr;
+    typedef orange::Mutex MutexType;
 
     Logger(const std::string& name = "root");
     void log(LogLevel::Level level, LogEvent::ptr event);
@@ -181,7 +183,7 @@ public:
 private:
     std::string m_name;                     // 日志名称
     LogLevel::Level m_level;                // 日志级别
-    orange::Mutex m_mutex;
+    MutexType m_mutex;
     std::list<LogAppender::ptr> m_appenders;// Appender集合
     LogFormatter::ptr m_formatter;
     Logger::ptr m_root;
@@ -214,6 +216,7 @@ private:
 
 class LoggerManager {
 public:
+    typedef orange::Mutex MutexType;
     LoggerManager();
 
     Logger::ptr getLogger(const std::string& name);
@@ -224,7 +227,7 @@ public:
     void init();
 private:
     std::map<std::string, Logger::ptr> m_loggers;
-    orange::Mutex m_mutex;
+    MutexType m_mutex;
     Logger::ptr m_root;
 };
 
