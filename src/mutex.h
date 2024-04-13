@@ -131,6 +131,28 @@ private:
     pthread_mutex_t m_mutex;
 };
 
+class SpinLock {
+public:
+    typedef ScopedLockImpl<SpinLock> Lock;
+    SpinLock() {
+        pthread_spin_init(&m_mutex, 0);
+    }
+
+    ~SpinLock() {
+        pthread_spin_destroy(&m_mutex);
+    }
+
+    void lock() {
+        pthread_spin_lock(&m_mutex);
+    }
+
+    void unlock() {
+        pthread_spin_unlock(&m_mutex);
+    }
+private:
+    pthread_spinlock_t m_mutex;
+};
+
 class NullMutex {
 public:
     typedef ScopedLockImpl<NullMutex> Lock;
