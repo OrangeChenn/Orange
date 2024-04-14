@@ -664,7 +664,7 @@ orange::ConfigVar<std::set<LogDefine> >::ptr g_log_defines = orange::Config::Loo
 
 struct LogIniter {
     LogIniter() {
-        g_log_defines->addListener(0xF1E231, [](const std::set<LogDefine>& old_val,
+        g_log_defines->addListener([](const std::set<LogDefine>& old_val,
                 const std::set<LogDefine>& new_val) {
             ORANGE_LOG_INFO(ORANGE_LOG_ROOT()) << "on_logger_conf_change";
             for(auto& i : new_val) {

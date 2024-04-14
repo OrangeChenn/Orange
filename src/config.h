@@ -15,6 +15,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include "log.h"
+#include "mutex.h"
 #include "util.h"
 
 namespace orange {
@@ -238,6 +239,8 @@ class ConfigVar : public ConfigVarBase {
 public:
     typedef std::shared_ptr<ConfigVar> ptr;
     typedef std::function<void (const T& old_value, const T& new_value)> on_change_cb;
+    typedef orange::RWMutex RWMutexType;
+
     ConfigVar(const std::string& name, const T& val, const std::string& description = "")
         :ConfigVarBase(name, description)
         ,m_val(val){
@@ -246,7 +249,7 @@ public:
 
     std::string toString() override {
         try {
-            // return boost::lexical_cast<std::string>(m_val);
+            RWMutexType::ReadLock lock(m_mutex);
             return ToStr()(m_val);
         } catch(const std::exception& e) {
             ORANGE_LOG_ERROR(ORANGE_LOG_ROOT()) << "ConfigVar toString exception"
@@ -270,51 +273,60 @@ public:
 
     const T getValue() const { return m_val; }
     void setValue(const T& val) { 
-        if(m_val == val) {
-            return;
+        {
+            RWMutexType::ReadLock lock(m_mutex);
+            if(m_val == val) {
+                return;
+            }
+            for(auto i : m_cbs) {
+                i.second(m_val, val);
+            }
         }
-        for(auto i : m_cbs) {
-            i.second(m_val, val);
-        }
+
+        RWMutexType::WriteLock lock(m_mutex);
         m_val = val;
     }
     std::string getTypeName() const override { return typeid(T).name(); }
 
-    void addListener(uint64_t key, on_change_cb cb) {
-        m_cbs[key] = cb;
+    uint64_t addListener(on_change_cb cb) {
+        RWMutexType::WriteLock lock(m_mutex);
+        static uint64_t s_fun_id = 0;
+        ++s_fun_id;
+        m_cbs[s_fun_id] = cb;
+        return s_fun_id;
     }
 
     void delListener(uint64_t key) {
+        RWMutexType::WriteLock lock(m_mutex);
         m_cbs.erase(key);
     }
 
     on_change_cb getListener(uint64_t key) {
+        RWMutexType::ReadLock lock(m_mutex);
         return m_cbs.find(key) == m_cbs.end() ? nullptr : m_cbs[key];
     }
 
     void clearListener() {
+        RWMutexType::WriteLock lock(m_mutex);
         m_cbs.clear();
     }
 
 
 private:
     T m_val;
+    RWMutexType m_mutex;
     std::map<uint64_t, on_change_cb> m_cbs;
 };
 
 class Config {
 public:
     typedef std::map<std::string, ConfigVarBase::ptr> ConfigVarMap;
+    typedef orange::RWMutex RWMutexType;
 
     template<class T>
     static typename ConfigVar<T>::ptr Lookup(const std::string& name,
             const T& default_value, const std::string description) {
-        // auto tmp = Lookup<T>(name);
-        // if(tmp) {
-        //     ORANGE_LOG_ERROR(ORANGE_LOG_ROOT()) << "Looup name: " << name << " exists.";
-        //     return tmp;
-        // }
-
+        RWMutexType::WriteLock lock(GetMutex());
         auto it = GetDatas().find(name);
         if(it != GetDatas().end()) {
             auto tmp = std::dynamic_pointer_cast<ConfigVar<T> > (it->second);
@@ -342,6 +354,7 @@ public:
 
     template<class T>
     static typename ConfigVar<T>::ptr Lookup(const std::string name) {
+        RWMutexType::ReadLock lock(GetMutex());
         auto it = GetDatas().find(name);
         if(it == GetDatas().end()) {
             return nullptr;
@@ -351,8 +364,12 @@ public:
 
     static ConfigVarBase::ptr LookupBase(const std::string& name);
     static void LoadFromYaml(const YAML::Node& node);
+    static void Visit(std::function<void(ConfigVarBase::ptr)> cb);
 private:
-    // static ConfigVarMap s_datas;
+    static RWMutexType& GetMutex() {
+        static RWMutexType s_mutex;
+        return s_mutex;
+    }
 
     static ConfigVarMap& GetDatas() {
         static ConfigVarMap s_datas;

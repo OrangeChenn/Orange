@@ -182,7 +182,7 @@ void test_class() {
         ORANGE_LOG_INFO(ORANGE_LOG_ROOT()) << #prefix << ": size = " << m.size(); \
     }
 
-    g_person_config->addListener(10, [](const Person& old_val, const Person& new_val) {
+    g_person_config->addListener([](const Person& old_val, const Person& new_val) {
         ORANGE_LOG_INFO(ORANGE_LOG_ROOT()) << "old_val= " << old_val.toString()
             << " new_val= " << new_val.toString();
     });
