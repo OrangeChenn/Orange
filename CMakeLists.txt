@@ -12,9 +12,10 @@ set(LIB_SRC
     src/config.cc
     src/thread.cc
     src/mutex.cc
+    src/fiber.cc
     )
 
-include_directories(src)
+include_directories(. src)
 add_library(orange SHARED ${LIB_SRC})
 force_redefine_file_macro_for_sources(orange)
 
@@ -41,6 +42,16 @@ add_executable(test_thread tests/test_thread.cc)
 add_dependencies(test_thread orange)
 force_redefine_file_macro_for_sources(test_thread)
 target_link_libraries(test_thread ${LIBS})
+
+add_executable(test_util tests/test_util.cc)
+add_dependencies(test_util orange)
+force_redefine_file_macro_for_sources(test_util)
+target_link_libraries(test_util ${LIBS})
+
+add_executable(test_fiber tests/test_fiber.cc)
+add_dependencies(test_fiber orange)
+force_redefine_file_macro_for_sources(test_fiber)
+target_link_libraries(test_fiber ${LIBS})
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
