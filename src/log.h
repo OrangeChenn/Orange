@@ -12,12 +12,13 @@
 
 #include "thread.h"
 #include "singleton.h"
+#include "util.h"
 
 #define ORANGE_LOG_LEVEL(logger, level) \
     if(logger->getLevel() <= level) \
         orange::LogEventWrap(std::shared_ptr<orange::LogEvent>(new orange::LogEvent(logger, level, \
                  __FILE__, __LINE__, 0, orange::GetThreadId(), \
-                orange::GetFiberId(), time(0)))).getSS()
+                orange::GetFiberId(), time(0), orange::Thread::GetName()))).getSS()
 
 #define ORANGE_LOG_DEBUG(logger) ORANGE_LOG_LEVEL(logger, orange::LogLevel::DEBUG)
 #define ORANGE_LOG_INFO(logger) ORANGE_LOG_LEVEL(logger, orange::LogLevel::INFO)
@@ -29,7 +30,7 @@
     if(logger->getLevel() <= level) \
         orange::LogEventWrap(std::shared_ptr<orange::LogEvent>(new orange::LogEvent(logger, level, \
                 __FILE__, __LINE__, 0, orange::GetThreadId(), \
-                orange::GetFiberId(), time(0)))).getEvent()->format(fmt, __VA_ARGS__)
+                orange::GetFiberId(), time(0), orange::Thread::GetName()))).getEvent()->format(fmt, __VA_ARGS__)
 
 #define ORANGE_LOG_FMT_DEBUG(logger, fmt, ...) ORANGE_LOG_FMT_LEVEL(logger, orange::LogLevel::DEBUG, fmt, __VA_ARGS__)
 #define ORANGE_LOG_FMT_INFO(logger, fmt, ...) ORANGE_LOG_FMT_LEVEL(logger, orange::LogLevel::INFO, fmt, __VA_ARGS__)
@@ -65,7 +66,7 @@ class LogEvent {
 public:
     typedef std::shared_ptr<LogEvent> ptr;
     LogEvent(std::shared_ptr<Logger> logger, LogLevel::Level level, const char* file, int32_t line, uint32_t elapse 
-        , uint32_t thread_id, uint32_t fiber_id, uint64_t time);
+        , uint32_t thread_id, uint32_t fiber_id, uint64_t time, const std::string& threadName);
 
     std::shared_ptr<Logger> getLogger() const { return m_logger; }
     LogLevel::Level getLevel() const { return m_level; }
@@ -73,6 +74,7 @@ public:
     int32_t getLine() const { return m_line; }
     uint32_t getElapse() const { return m_elapse; }
     uint32_t getThreadId() const { return m_threadId; }
+    const std::string& getThreadName() const { return m_threadName; }
     uint32_t getFiberId() const { return m_fiberId; }
     uint64_t getTime() const { return m_time; }
     std::string getContent() const { return m_ss.str(); }
@@ -87,6 +89,7 @@ private:
     int32_t m_line = 0;             // 行号
     uint32_t m_elapse = 0;          // 程序启动开始到现在的毫秒数
     uint32_t m_threadId = 0;        // 线程id
+    std::string m_threadName;       // 线程名称
     uint32_t m_fiberId = 0;         // 协程id
     uint64_t m_time = 0;            // 时间戳
     std::stringstream m_ss;
