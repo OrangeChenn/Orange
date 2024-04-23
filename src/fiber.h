@@ -25,11 +25,16 @@ private:
     Fiber();
 
 public:
-    Fiber(std::function<void()> cb, size_t stackSize = 0);
+    Fiber(std::function<void()> cb, size_t stackSize = 0, bool use_call = false);
     ~Fiber();
 
     uint64_t getId() const { return m_id; }
+    State getState() const { return m_state; }
+    void setState(Fiber::State state) { m_state = state; }
     void reset(std::function<void()> cb);
+
+    void call();
+    void back();
     void swapIn();
     void swapOut();
 
@@ -42,6 +47,7 @@ public:
 
     static uint64_t TotalFibers();
     static void MainFunc();
+    static void CallerMainFunc();
 
 private:
     uint64_t m_id = 0;

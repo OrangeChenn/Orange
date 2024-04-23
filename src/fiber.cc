@@ -6,6 +6,7 @@
 #include "config.h"
 #include "log.h"
 #include "macro.h"
+#include "scheduler.h"
 
 namespace orange {
 
@@ -13,7 +14,7 @@ static std::atomic<uint64_t> s_fiber_id {0};
 static std::atomic<uint64_t> s_fiber_count {0};
 
 static thread_local Fiber* t_fiber = nullptr;
-static thread_local std::shared_ptr<Fiber> t_fiberThread;
+static thread_local std::shared_ptr<Fiber> t_fiberThread = nullptr;
 
 static orange::ConfigVar<uint32_t>::ptr g_fiber_stack_size =
     orange::Config::Lookup<uint32_t>("fiber.stack_size", 1024 * 1024, "fiber stack size");
@@ -42,10 +43,10 @@ Fiber::Fiber() {
     }
 
     ++s_fiber_count;
-    ORANGE_LOG_DEBUG(g_logger) << "Fiber::Fiber id = " << m_id;
+    // ORANGE_LOG_DEBUG(g_logger) << "Fiber::Fiber id = " << m_id;
  }
 
-Fiber::Fiber(std::function<void()> cb, size_t stackSize /* = 0 */) 
+Fiber::Fiber(std::function<void()> cb, size_t stackSize /* = 0 */, bool use_call /* = false */) 
     :m_id(++s_fiber_id)
     ,m_cb(cb) {
     m_state = INIT;
@@ -59,12 +60,16 @@ Fiber::Fiber(std::function<void()> cb, size_t stackSize /* = 0 */)
     m_ctx.uc_stack.ss_sp = m_stack;
     m_ctx.uc_stack.ss_size = m_stackSize;
 
-    makecontext(&m_ctx, Fiber::MainFunc, 0);
-    ORANGE_LOG_DEBUG(g_logger) << "Fiber::Fiber(x, x) id = " << m_id;
+    if(use_call) {
+        makecontext(&m_ctx, Fiber::CallerMainFunc, 0);
+    } else {
+        makecontext(&m_ctx, Fiber::MainFunc, 0);
+    }
+    // ORANGE_LOG_DEBUG(g_logger) << "Fiber::Fiber(x, x) id = " << m_id;
 }
 
 Fiber::~Fiber() {
-    ORANGE_LOG_DEBUG(g_logger) << "Fiber::~Fiber id = " << m_id;
+    // ORANGE_LOG_DEBUG(g_logger) << "Fiber::~Fiber id = " << m_id;
     --s_fiber_count;
     if(m_stack) {
         ORANGE_ASSERT(m_state == INIT
@@ -99,20 +104,37 @@ void Fiber::reset(std::function<void()> cb) {
     m_state = INIT;
 }
 
+void Fiber::call() {
+    SetThis(this);
+    ORANGE_ASSERT(m_state != EXEC);
+    m_state = EXEC;
+    
+    if(swapcontext(&(t_fiberThread->m_ctx), &m_ctx)) {
+        ORANGE_ASSERT2(false, "call swapcontext");
+    }
+}
+
+void Fiber::back() {
+    SetThis(t_fiberThread.get());
+    if(swapcontext(&m_ctx, &(t_fiberThread->m_ctx))) {
+        ORANGE_ASSERT2(false, "back swapcontext");
+    }
+}
+
 void Fiber::swapIn() {
     SetThis(this);
     ORANGE_ASSERT(m_state != EXEC);
     m_state = EXEC;
 
-    if(swapcontext(&(t_fiberThread->m_ctx), &m_ctx)) {
-        ORANGE_ASSERT2(false, "swapcontext");
+    if(swapcontext(&(Scheduler::GetMainFiber()->m_ctx), &m_ctx)) {
+        ORANGE_ASSERT2(false, "swapin swapcontext");
     }
 }
 
 void Fiber::swapOut() {
-    SetThis(t_fiberThread.get());
-    if(swapcontext(&m_ctx, &(t_fiberThread->m_ctx))) {
-        ORANGE_ASSERT2(false, "swapcontext");
+    SetThis(Scheduler::GetMainFiber());
+    if(swapcontext(&m_ctx, &(Scheduler::GetMainFiber()->m_ctx))) {
+        ORANGE_ASSERT2(false, "swapout swapcontext");
     }
 }
 
@@ -145,7 +167,8 @@ void Fiber::YielToReady() {
 
 void Fiber::YielToHold() {
     Fiber::ptr cur = GetThis();
-    cur->m_state = HOLD;
+    ORANGE_ASSERT(cur->getState() == EXEC);
+    // cur->m_state = HOLD;
     cur->swapOut();
 }
 
@@ -172,6 +195,26 @@ void Fiber::MainFunc() {
     Fiber* fiber = cur.get();
     cur.reset();
     fiber->swapOut();
+}
+
+void Fiber::CallerMainFunc() {
+    Fiber::ptr cur = GetThis();
+    ORANGE_ASSERT(cur);
+    try {
+        cur->m_cb();
+        cur->m_cb = nullptr;
+        cur->m_state = TERM;
+    } catch(std::exception& e) {
+        cur->m_state = EXCPT;
+        ORANGE_LOG_ERROR(g_logger) << "Fiber Excpt: " << e.what();
+    } catch(...) {
+        cur->m_state = EXCPT;
+        ORANGE_LOG_ERROR(g_logger) << "Fiber Excpt";
+    }
+
+    Fiber* fiber = cur.get();
+    cur.reset();
+    fiber->back();
 }
 
 }
