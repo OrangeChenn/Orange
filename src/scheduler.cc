@@ -189,7 +189,7 @@ void Scheduler::run() {
                         || cb_fiber->getState() == Fiber::EXCPT) {
                 cb_fiber->reset(nullptr);
             } else {
-                cb_fiber->setState(Fiber::HOLD);
+                cb_fiber->m_state = Fiber::HOLD;
                 cb_fiber.reset();
             }
         } else {
