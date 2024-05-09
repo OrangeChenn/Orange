@@ -43,7 +43,7 @@ Fiber::Fiber() {
     }
 
     ++s_fiber_count;
-    // ORANGE_LOG_DEBUG(g_logger) << "Fiber::Fiber id = " << m_id;
+    ORANGE_LOG_DEBUG(g_logger) << "Fiber::Fiber id = " << m_id;
  }
 
 Fiber::Fiber(std::function<void()> cb, size_t stackSize /* = 0 */, bool use_call /* = false */) 
@@ -65,11 +65,11 @@ Fiber::Fiber(std::function<void()> cb, size_t stackSize /* = 0 */, bool use_call
     } else {
         makecontext(&m_ctx, Fiber::MainFunc, 0);
     }
-    // ORANGE_LOG_DEBUG(g_logger) << "Fiber::Fiber(x, x) id = " << m_id;
+    ORANGE_LOG_DEBUG(g_logger) << "Fiber::Fiber(x, x) id = " << m_id;
 }
 
 Fiber::~Fiber() {
-    // ORANGE_LOG_DEBUG(g_logger) << "Fiber::~Fiber id = " << m_id;
+    ORANGE_LOG_DEBUG(g_logger) << "Fiber::~Fiber id = " << m_id;
     --s_fiber_count;
     if(m_stack) {
         ORANGE_ASSERT(m_state == INIT

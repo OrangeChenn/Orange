@@ -2,6 +2,7 @@
 
 #include "config.h"
 #include "fiber.h"
+#include "iomanager.h"
 #include "log.h"
 #include "macro.h"
 #include "mutex.h"

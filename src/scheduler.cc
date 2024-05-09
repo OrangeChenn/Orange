@@ -115,6 +115,7 @@ void Scheduler::setThis() {
 }
 
 void Scheduler::run() {
+    ORANGE_LOG_INFO(g_logger) << "run";
     setThis();
     if(orange::GetThreadId() != m_rootThread) {
         t_scheduler_fiber = orange::Fiber::GetThis().get();
@@ -213,6 +214,10 @@ void Scheduler::run() {
             }
         }
     }
+}
+
+bool Scheduler::hasIdleThreads() {
+    return m_idleThreadCount > 0;
 }
 
 void Scheduler::tickle() {
