@@ -16,6 +16,8 @@ set(LIB_SRC
     src/scheduler.cc
     src/iomanager.cc
     src/timer.cc
+    src/hook.cc
+    src/fd_manager.cc
     )
 
 include_directories(. src)
@@ -27,6 +29,7 @@ include_directories(${YAML_CPP_INCLUDE_DIR})
 
 set(LIBS
     orange
+    dl
     yaml-cpp
     pthread
     )
@@ -65,6 +68,11 @@ add_executable(test_iomanager tests/test_iomanager.cc)
 add_dependencies(test_iomanager orange)
 force_redefine_file_macro_for_sources(test_iomanager)
 target_link_libraries(test_iomanager ${LIBS})
+
+add_executable(test_hook tests/test_hook.cc)
+add_dependencies(test_hook orange)
+force_redefine_file_macro_for_sources(test_hook)
+target_link_libraries(test_hook ${LIBS})
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)

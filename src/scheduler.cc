@@ -1,5 +1,6 @@
 #include "scheduler.h"
 
+#include "hook.h"
 #include "log.h"
 #include "macro.h"
 
@@ -116,6 +117,7 @@ void Scheduler::setThis() {
 
 void Scheduler::run() {
     ORANGE_LOG_INFO(g_logger) << "run";
+    set_hook_enable(true);
     setThis();
     if(orange::GetThreadId() != m_rootThread) {
         t_scheduler_fiber = orange::Fiber::GetThis().get();
