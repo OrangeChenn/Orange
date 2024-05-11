@@ -4,6 +4,7 @@
 
 #include <functional>
 #include <memory>
+#include <string>
 
 #include "mutex.h"
 #include "noncopyable.h"
