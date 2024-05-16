@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "mutex.h"
+#include "singleton.h"
 
 namespace orange {
 
@@ -50,5 +51,7 @@ private:
     RWMutexType m_mutex;
     std::vector<FdCtx::ptr> m_datas;
 };
+
+typedef orange::Singleton<FdManager> FdMrg;
 
 } // namespace orange

@@ -44,7 +44,7 @@ public:
     ~IOManager();
 
     // 0 success, 1 retry, -1 error
-    int addEvent(int fd, Event event, std::function<void()> cb);
+    int addEvent(int fd, Event event, std::function<void()> cb = nullptr);
     bool delEvent(int fd, Event event);
     bool cancelEvent(int fd, Event event);
     bool cancelAllEvent(int fd);

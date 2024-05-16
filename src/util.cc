@@ -8,9 +8,9 @@
 #include "fiber.h"
 #include "log.h"
 
-orange::Logger::ptr g_logger = ORANGE_LOG_NAME("system");
-
 namespace orange {
+
+orange::Logger::ptr g_logger = ORANGE_LOG_NAME("system");
 
 pid_t GetThreadId() {
     return syscall(SYS_gettid);

@@ -5,7 +5,6 @@
 #include <unistd.h>
 
 #include "hook.h"
-#include "singleton.h"
 
 namespace orange {
 
@@ -18,7 +17,7 @@ FdCtx::FdCtx(int fd)
     ,m_fd(fd)
     ,m_recvTimeout(-1)
     ,m_sendTimeout(-1) {
-
+    init();
 }
 
 FdCtx::~FdCtx() {
@@ -40,9 +39,9 @@ bool FdCtx::init() {
         m_isSocket = S_ISSOCK(fd_stat.st_mode);
     }
     if(m_isSocket) {
-        int flag = fcntl(m_fd, F_GETFL, 0);
-        if(flag & O_NONBLOCK) {
-            fcntl(m_fd, F_SETFL, flag | O_NONBLOCK);
+        int flag = fcntl_f(m_fd, F_GETFL, 0);
+        if(!(flag & O_NONBLOCK)) {
+            fcntl_f(m_fd, F_SETFL, flag | O_NONBLOCK);
         }
         m_sysNonblock = true;
     } else {
@@ -94,8 +93,8 @@ FdCtx::ptr FdManager::get(int fd, bool auto_create) {
         }
     }
     lock.unlock();
-    FdCtx::ptr ctx(new FdCtx(fd));
     RWMutexType::WriteLock lock2(m_mutex);
+    FdCtx::ptr ctx(new FdCtx(fd));
     m_datas[fd] = ctx;
     return ctx;
 }
@@ -107,7 +106,5 @@ void FdManager::del(int fd) {
     }
     m_datas[fd].reset();
 }
-
-typedef orange::Singleton<FdManager> FdMrg;
 
 } // namespace orange
