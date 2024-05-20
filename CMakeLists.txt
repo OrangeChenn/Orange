@@ -18,6 +18,7 @@ set(LIB_SRC
     src/timer.cc
     src/hook.cc
     src/fd_manager.cc
+    src/address.cc
     )
 
 include_directories(. src)
@@ -73,6 +74,11 @@ add_executable(test_hook tests/test_hook.cc)
 add_dependencies(test_hook orange)
 force_redefine_file_macro_for_sources(test_hook)
 target_link_libraries(test_hook ${LIBS})
+
+add_executable(test_address tests/test_address.cc)
+add_dependencies(test_address orange)
+force_redefine_file_macro_for_sources(test_address)
+target_link_libraries(test_address ${LIBS})
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
