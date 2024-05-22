@@ -458,12 +458,6 @@ void IPv6Address::setPort(uint16_t port) {
 // UnixAddress
 static const size_t MAX_PATH_LEN = sizeof(((sockaddr_un*)0)->sun_path) - 1;
 
-UnixAddress::UnixAddress() {
-    memset(&m_addr, 0, sizeof(m_addr));
-    m_addr.sun_family = AF_UNIX;
-    m_length = offsetof(sockaddr_un, sun_path) + MAX_PATH_LEN;
-}
-
 UnixAddress::UnixAddress(const std::string& address, uint32_t port) {
     memset(&m_addr, 0, sizeof(m_addr));
     m_addr.sun_family = AF_UNIX;
@@ -480,6 +474,10 @@ UnixAddress::UnixAddress(const std::string& address, uint32_t port) {
 
 const sockaddr* UnixAddress::getAddr() const {
     return (struct sockaddr*)&m_addr;
+}
+
+void UnixAddress::setAddrLen(socklen_t v) {
+    m_length = v;
 }
 
 socklen_t UnixAddress::getAddrLen() const {
