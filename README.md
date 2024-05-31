@@ -18,18 +18,18 @@ sudo apt-get install libboost-all-dev
 日志级别
 ```C++
 enum Level{
-        //  未知 级别
-        UNKNOW = 0,
-        //  DEBUG 级别
-        DEBUG = 1,
-        //  INFO 级别
-        INFO = 2,
-        //  WARN 级别
-        WARN = 3,
-        //  ERROR 级别
-        ERROR = 4,
-        //  FATAL 级别
-        FATAL = 5
+    //  未知 级别
+    UNKNOW = 0,
+    //  DEBUG 级别
+    DEBUG = 1,
+    //  INFO 级别
+    INFO = 2,
+    //  WARN 级别
+    WARN = 3,
+    //  ERROR 级别
+    ERROR = 4,
+    //  FATAL 级别
+    FATAL = 5
 };
 ```
 日志格式化
@@ -58,6 +58,8 @@ enum Level{
 ### 协程调度模块
 
 ### IO协程调度模块
+
+### 定时器模块
 
 ### HOOK模块
 

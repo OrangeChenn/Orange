@@ -21,6 +21,10 @@ set(LIB_SRC
     src/address.cc
     src/socket.cc
     src/bytearray.cc
+    src/http/http.cc
+    src/http/http_parser.cc
+    src/http/http11_parser.rl.cc
+    src/http/httpclient_parser.rl.cc
     )
 
 include_directories(. src)
@@ -91,6 +95,16 @@ add_executable(test_bytearray tests/test_bytearray.cc)
 add_dependencies(test_bytearray orange)
 force_redefine_file_macro_for_sources(test_bytearray)
 target_link_libraries(test_bytearray ${LIBS})
+
+add_executable(test_http tests/test_http.cc)
+add_dependencies(test_http orange)
+force_redefine_file_macro_for_sources(test_http)
+target_link_libraries(test_http ${LIBS})
+
+add_executable(test_http_parser tests/test_http_parser.cc)
+add_dependencies(test_http_parser orange)
+force_redefine_file_macro_for_sources(test_http_parser)
+target_link_libraries(test_http_parser ${LIBS})
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
