@@ -21,6 +21,7 @@ set(LIB_SRC
     src/address.cc
     src/socket.cc
     src/bytearray.cc
+    src/tcp_server.cc
     src/http/http.cc
     src/http/http_parser.cc
     src/http/http11_parser.rl.cc
@@ -105,6 +106,16 @@ add_executable(test_http_parser tests/test_http_parser.cc)
 add_dependencies(test_http_parser orange)
 force_redefine_file_macro_for_sources(test_http_parser)
 target_link_libraries(test_http_parser ${LIBS})
+
+add_executable(test_tcp_server tests/test_tcp_server.cc)
+add_dependencies(test_tcp_server orange)
+force_redefine_file_macro_for_sources(test_tcp_server)
+target_link_libraries(test_tcp_server ${LIBS})
+
+add_executable(echo_server examples/echo_server.cc)
+add_dependencies(echo_server orange)
+force_redefine_file_macro_for_sources(echo_server)
+target_link_libraries(echo_server ${LIBS})
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)

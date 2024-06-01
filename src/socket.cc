@@ -128,7 +128,7 @@ Socket::ptr Socket::accept() {
 
 bool Socket::init(int sock) {
     FdCtx::FdCtx::ptr ctx = orange::FdMrg::GetInstance()->get(sock);
-    if(!ctx && ctx->isSocket() && !ctx->isClose()) {
+    if(ctx && ctx->isSocket() && !ctx->isClose()) {
         m_sock = sock;
         m_isConnected = true;
         initSock();
@@ -345,7 +345,7 @@ Address::ptr Socket::getLocalAddress() {
             result.reset(new IPv6Address());
             break;
         case AF_UNIX:
-            result.reset(new UnixAddress());
+            result.reset(new UnixAddress(""));
             break;   
         default:
             result.reset(new UnkownAddress(m_family));
@@ -386,16 +386,16 @@ std::ostream& Socket::dump(std::ostream& os) const {
        << " isConnected=" << m_isConnected;
     
     if(m_localAddress) {
-        os << m_localAddress->toString();
+        os << " localAddress=" << m_localAddress->toString();
     }
     if(m_remoteAddress) {
-        os << m_remoteAddress->toString();
+        os << " remoteAddress=" << m_remoteAddress->toString();
     }
     os << "]";
     return os;
 }
 
-std::string Socket::toString() {
+std::string Socket::toString() const {
     std::stringstream ss;
     dump(ss);
     return ss.str();
@@ -434,6 +434,10 @@ void Socket::newSocket() {
                 << m_type << ", " << m_protocol << ") errno=" << errno
                 << ", strerror=" << strerror(errno);
     }
+}
+
+std::ostream& operator<<(std::ostream& os, const Socket& sock) {
+    return sock.dump(os);
 }
 
 } // namespace orange

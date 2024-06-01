@@ -215,7 +215,7 @@ int Address::getFamily() const {
     return  getAddr()->sa_family;
 }
 
-std::string Address::toString() {
+std::string Address::toString() const {
     std::stringstream ss;
     insert(ss);
     return ss.str();
@@ -466,7 +466,7 @@ UnixAddress::UnixAddress(const std::string& address, uint32_t port) {
         --m_length;
     }
     if(m_length > MAX_PATH_LEN) {
-        throw std::logic_error("");
+        throw std::logic_error("path too long");
     }
     memcpy(&m_addr.sun_path, address.c_str(), m_length);
     m_length += offsetof(sockaddr_un, sun_path);
@@ -512,6 +512,10 @@ socklen_t UnkownAddress::getAddrLen() const {
 std::ostream& UnkownAddress::insert(std::ostream& os) const {
     os << "[UnkownAddress family:" << m_addr.sa_family << "]";
     return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const Address& addr) {
+    return addr.insert(os);
 }
 
 } // namespace orange
