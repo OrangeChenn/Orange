@@ -22,10 +22,12 @@ set(LIB_SRC
     src/socket.cc
     src/bytearray.cc
     src/tcp_server.cc
+    src/stream.cc
     src/http/http.cc
     src/http/http_parser.cc
     src/http/http11_parser.rl.cc
     src/http/httpclient_parser.rl.cc
+    src/stream/socket_stream.cc
     )
 
 include_directories(. src)
