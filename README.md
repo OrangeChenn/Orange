@@ -83,7 +83,15 @@ ragel -G2 -C httpclient_parser.rl -o httpclient_parser.rl.cc
 编译不通过
 ```C
 //  编译不通过，去掉 #include "dbg.h" 头文件，添加宏定义
+#include <errno.h>
 #define check(A, M, ...) if(!(A)) { /* log_err(M, ##__VA_ARGS__); */ errno=0; goto error; }
+
+// 使用的解析器默认是解析完整的请求，而我们的代码里支持分段解析
+// http_parser_execute执行时需要重置部分变量，在http11_parser.rl中的http_parser_execute函数添加
+parser->nread = 0;
+parser->mark = 0;
+parser->field_len = len;
+parser->field_start = 0;
 
 ```
 

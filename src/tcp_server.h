@@ -27,7 +27,7 @@ public:
     bool isStop() const { return m_isStop; }
 protected:
     virtual void startAccept(orange::Socket::ptr sock);
-    virtual void handleClient(orange::Socket::ptr sock);
+    virtual void handleClient(orange::Socket::ptr client);
 private:
     std::vector<orange::Socket::ptr> m_socks;
     orange::IOManager* m_worker;

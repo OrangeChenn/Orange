@@ -20,6 +20,9 @@ public:
     void setError(int error) { m_error = error; }
 
     uint64_t getContentLength() const;
+public:
+    static uint64_t GetHttpRequestBufferSize();
+    static uint64_t GetHttpRequestMaxBodySize();
 private:
     http_parser m_parser;
     HttpRequest::ptr m_data;
@@ -43,6 +46,9 @@ public:
     void setError(int error) { m_error = error; }
 
     uint64_t getContentLength() const;
+public:
+    static uint64_t GetResponseBufferSize();
+    static uint64_t GetRespinseMaxBodySize();
 private:
     httpclient_parser m_parser;
     HttpResponse::ptr m_data;

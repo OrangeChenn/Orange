@@ -101,8 +101,8 @@ void TcpServer::stop() {
     });
 }
 
-void TcpServer::handleClient(orange::Socket::ptr sock) {
-    ORANGE_LOG_INFO(g_logger) << *sock;
+void TcpServer::handleClient(orange::Socket::ptr client) {
+    ORANGE_LOG_INFO(g_logger) << *client;
 }
 
 } // namespace orange

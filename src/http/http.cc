@@ -152,7 +152,7 @@ std::string HttpRequest::toString() {
     return ss.str();
 }
 
-std::ostream& HttpRequest::dump(std::ostream& os) {
+std::ostream& HttpRequest::dump(std::ostream& os) const {
     os << HttpMethodToString(m_method) << " "
        << m_path
        << (m_query.empty() ? "" : "?")
@@ -244,7 +244,7 @@ std::string HttpResponse::toString() {
     return ss.str();
 }
 
-std::ostream& HttpResponse::dump(std::ostream& os) {
+std::ostream& HttpResponse::dump(std::ostream& os) const {
     os << "HTTP/"
        << ((uint32_t)(m_version >> 4))
        << "."
@@ -268,6 +268,14 @@ std::ostream& HttpResponse::dump(std::ostream& os) {
         os << "\r\n";
     }
     return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const HttpRequest& req) {
+    return req.dump(os);
+}
+
+std::ostream& operator<<(std::ostream& os, const HttpResponse& rsp) {
+    return rsp.dump(os);
 }
 
 } // namespace http

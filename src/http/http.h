@@ -260,7 +260,7 @@ public:
     }
 
     std::string toString();
-    std::ostream& dump(std::ostream& os);
+    std::ostream& dump(std::ostream& os) const;
 
     void init();
     void initParam();
@@ -323,7 +323,7 @@ public:
     }
 
     std::string toString();
-    std::ostream& dump(std::ostream& os);
+    std::ostream& dump(std::ostream& os) const;
 private:
     HttpStatus m_status;
     uint8_t m_version;
@@ -336,6 +336,9 @@ private:
     MapType m_headers;
     std::vector<std::string> m_cookies;
 };
+
+std::ostream& operator<<(std::ostream& os, const HttpRequest& req);
+std::ostream& operator<<(std::ostream& os, const HttpResponse& rsp);
 
 } // namespace http
 } // namespace orange

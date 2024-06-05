@@ -18,13 +18,27 @@ static orange::ConfigVar<uint64_t>::ptr g_http_request_max_body_size =
         orange::Config::Lookup<uint64_t>("http.requset.max_body_size"
                             ,64 * 1024 * 1024ull, "http request max body size");
 
+static orange::ConfigVar<uint64_t>::ptr g_http_response_buffer_size =
+        orange::Config::Lookup<uint64_t>("http_response.buffer_size"
+                            , 4 * 1024ull, "http response buffer size");
+
+static orange::ConfigVar<uint64_t>::ptr g_http_response_max_body_size =
+        orange::Config::Lookup<uint64_t>("http_response.max_body_size"
+                            , 64 * 1024 * 1024ull, "http response max body size");
+
 static uint64_t s_http_request_buffer_size = 0;
 static uint64_t s_http_request_max_body_size = 0;
+static uint64_t s_http_response_buffer_size = 0;
+static uint64_t s_http_response_max_body_size = 0;
 // 避免getValue频繁调用影响性能
+namespace {
+
 struct _RequestSizeIniter {
     _RequestSizeIniter() {
         s_http_request_buffer_size = g_http_request_buffer_size->getValue();
         s_http_request_max_body_size = g_http_request_max_body_size->getValue();
+        s_http_response_buffer_size = g_http_response_buffer_size->getValue();
+        s_http_request_max_body_size = g_http_response_max_body_size->getValue();
 
         g_http_request_buffer_size->addListener(
             [](const uint64_t& ov, const uint64_t& nv) {
@@ -34,10 +48,35 @@ struct _RequestSizeIniter {
             [](const uint64_t& ov, const uint64_t& nv) {
                 s_http_request_max_body_size = nv;
         });
+        g_http_response_buffer_size->addListener(
+            [](const uint64_t& ov, const uint64_t& nv) {
+                s_http_response_buffer_size = nv;
+        });
+        g_http_response_max_body_size->addListener(
+            [](const uint64_t& ov, const uint64_t& nv) {
+                s_http_response_max_body_size = nv;
+        });
     }
 };
-
 static _RequestSizeIniter _init;
+
+}
+
+uint64_t HttpRequestParser::GetHttpRequestBufferSize() {
+    return s_http_request_buffer_size;
+}
+
+uint64_t HttpRequestParser::GetHttpRequestMaxBodySize() {
+    return s_http_request_max_body_size;
+}
+
+uint64_t HttpResponseParser::GetResponseBufferSize() {
+    return s_http_response_buffer_size;
+}
+
+uint64_t HttpResponseParser::GetRespinseMaxBodySize() {
+    return s_http_response_max_body_size;
+}
 
 void on_request_method(void *data, const char *at, size_t length) {
     HttpRequestParser* parser = static_cast<HttpRequestParser*>(data);
