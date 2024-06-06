@@ -9,6 +9,7 @@ static orange::Logger::ptr g_logger = ORANGE_LOG_NAME("system");
 
 HttpServer::HttpServer(bool keepalive, IOManager* worker, IOManager* accept_worker) 
     :TcpServer(worker, accept_worker)
+    ,m_dispatch(new ServletDispatch())
     ,m_iskeepalive(keepalive){
 }
 
@@ -22,11 +23,12 @@ void HttpServer::handleClient(orange::Socket::ptr client) {
                     << *client;
         }
         HttpResponse::ptr rsp(new HttpResponse(req->getVersion(), req->isClose() | !m_iskeepalive));
-        rsp->setBody("hello chen");
-        ORANGE_LOG_INFO(g_logger) << "request:" << std::endl
-                << *req;
-        ORANGE_LOG_INFO(g_logger) << "response:" << std::endl
-                << *rsp;
+        m_dispatch->handle(req, rsp, session);
+        // rsp->setBody("hello chen");
+        // ORANGE_LOG_INFO(g_logger) << "request:" << std::endl
+        //         << *req;
+        // ORANGE_LOG_INFO(g_logger) << "response:" << std::endl
+        //         << *rsp;
         session->sendResponse(rsp);
     } while(m_iskeepalive);
     session->close();
