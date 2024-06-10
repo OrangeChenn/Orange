@@ -23,12 +23,14 @@ set(LIB_SRC
     src/bytearray.cc
     src/tcp_server.cc
     src/stream.cc
+    src/uri.rl.cc
     src/http/http.cc
     src/http/http_parser.cc
     src/http/http11_parser.rl.cc
     src/http/httpclient_parser.rl.cc
     src/http/http_session.cc
     src/http/http_server.cc
+    src/http/http_connection.cc
     src/http/servlet.cc
     src/stream/socket_stream.cc
     )
@@ -63,6 +65,8 @@ orange_add_executable(test_http_parser "tests/test_http_parser.cc" orange "${LIB
 orange_add_executable(test_tcp_server "tests/test_tcp_server.cc" orange "${LIBS}")
 orange_add_executable(echo_server "examples/echo_server.cc" orange "${LIBS}")
 orange_add_executable(test_http_server "tests/test_http_server.cc" orange "${LIBS}")
+orange_add_executable(test_http_connection "tests/test_http_connection.cc" orange "${LIBS}")
+orange_add_executable(test_uri "tests/test_uri.cc" orange "${LIBS}")
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)

@@ -134,7 +134,7 @@ void on_request_http_field(void *data, const char *field, size_t flen
     HttpRequestParser* parser = static_cast<HttpRequestParser*>(data);
     if(flen == 0) {
         ORANGE_LOG_WARN(g_logger) << "invalide http request field length = 0";
-        parser->setError(1002);
+        // parser->setError(1002);
         return;
     }
     parser->getData()->setHeader(std::string(field, flen)
@@ -143,7 +143,7 @@ void on_request_http_field(void *data, const char *field, size_t flen
 
 HttpRequestParser::HttpRequestParser()
     :m_error(0) {
-    m_data.reset(new orange::http::HttpRequest);
+    m_data = std::make_shared<HttpRequest>();
     http_parser_init(&m_parser);
     m_parser.request_method = on_request_method;
     m_parser.request_uri = on_request_uri;
@@ -217,7 +217,7 @@ void on_response_http_field(void *data, const char *field, size_t flen
     HttpResponseParser* parser = static_cast<HttpResponseParser*>(data);
     if(flen == 0) {
         ORANGE_LOG_WARN(g_logger) << "invalide http response field length = 0";
-        parser->setError(1002);
+        // parser->setError(1002);
         return;
     }
     parser->getData()->setHeader(std::string(field, flen)
@@ -226,7 +226,7 @@ void on_response_http_field(void *data, const char *field, size_t flen
 
 HttpResponseParser::HttpResponseParser()
     :m_error(0) {
-    m_data.reset(new orange::http::HttpResponse);
+    m_data = std::make_shared<HttpResponse>();
     httpclient_parser_init(&m_parser);
     m_parser.reason_phrase = on_response_reason;
     m_parser.status_code = on_response_status;
@@ -246,14 +246,17 @@ int HttpResponseParser::hasError() {
     return m_error | httpclient_parser_has_error(&m_parser);
 }
 
-size_t HttpResponseParser::execute(char* data, size_t len) {
+size_t HttpResponseParser::execute(char* data, size_t len, bool chunk) {
+    if(chunk) {
+        httpclient_parser_init(&m_parser);
+    }
     size_t offset = httpclient_parser_execute(&m_parser, data, len, 0);
     memmove(data, data + offset, (len - offset));
     return offset;
 }
 
 uint64_t HttpResponseParser::getContentLength() const {
-    return m_data->getHeaderAs("Content-length", 0);
+    return m_data->getHeaderAs("Content-Length", 0);
 }
 
 } // namespace http

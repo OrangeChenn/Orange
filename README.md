@@ -90,13 +90,19 @@ ragel -G2 -C httpclient_parser.rl -o httpclient_parser.rl.cc
 // http_parser_execute执行时需要重置部分变量，在http11_parser.rl中的http_parser_execute函数添加
 parser->nread = 0;
 parser->mark = 0;
-parser->field_len = len;
+parser->field_len = 0;
 parser->field_start = 0;
 
 ```
 
 ### Socket流模块
 
+### HttpServer模块
+
+### Servlet模块
+
+### HttpConnection模块
+http测试工具PostMan
 
 ## 参考
 视频地址：[C++高级教程（从零开始开发服务器框架）](https://www.bilibili.com/video/av53602631/?from=www.sylar.top&vd_source=675503aef6b8806b189e38ef9f181737)

@@ -164,15 +164,15 @@ std::ostream& HttpRequest::dump(std::ostream& os) const {
        << "."
        << ((uint32_t)(m_version & 0x0F))
        << "\r\n";
-    os << "connection: " << (m_close ? "close" : "keep-alive") << "\r\n";
+    os << "Connection: " << (m_close ? "close" : "keep-alive") << "\r\n";
     for(auto& i : m_headers) {
-        if(strcasecmp(i.first.c_str(), "connection") == 0) {
+        if(strcasecmp(i.first.c_str(), "Connection") == 0) {
             continue;
         }
         os << i.first <<  ": " << i.second << "\r\n";
     }
     if(!m_body.empty()) {
-        os << "content-length: " << m_body.size() << "\r\n\r\n"
+        os << "Content-Length: " << m_body.size() << "\r\n\r\n"
            << m_body;
     } else {
         os << "\r\n";
@@ -181,11 +181,11 @@ std::ostream& HttpRequest::dump(std::ostream& os) const {
 }
 
 void HttpRequest::init() {
-    std::string conn = getHeader("connection");
+    std::string conn = getHeader("Connection");
     if(strcasecmp(conn.c_str(), "keep-alive") == 0) {
-        m_close = true;
-    } else {
         m_close = false;
+    } else {
+        m_close = true;
     }
 }
 

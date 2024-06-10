@@ -42,7 +42,7 @@ const char test_response_data[] = "HTTP/1.1 200 OK\r\n"
 void test_response() {
     orange::http::HttpResponseParser parser;
     std::string tmp = test_response_data;
-    size_t size = parser.execute(&tmp[0], tmp.size());
+    size_t size = parser.execute(&tmp[0], tmp.size(), false);
     ORANGE_LOG_INFO(g_logger) << "execute rt = " << size
             << " has_error=" << parser.hasError()
             << " is_finished=" << parser.isFinished()
