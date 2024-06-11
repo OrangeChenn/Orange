@@ -21,6 +21,7 @@ void HttpServer::handleClient(orange::Socket::ptr client) {
             ORANGE_LOG_WARN(g_logger) << "recv http request fail, "
                     << "errno=" << errno << " strerror=" << strerror(errno)
                     << *client;
+            break;
         }
         HttpResponse::ptr rsp(new HttpResponse(req->getVersion(), req->isClose() | !m_iskeepalive));
         m_dispatch->handle(req, rsp, session);

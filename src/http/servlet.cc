@@ -120,7 +120,7 @@ int32_t NotFoundServlet::handle(orange::http::HttpRequest::ptr request
         "<hr><center>orange/1.0.0</center></body></html>";
 
     response->setStatus(orange::http::HttpStatus::NOT_FOUND);
-    response->setHeader("Server", "1.0.0");
+    response->setHeader("Server", "orange/1.0.0");
     response->setHeader("Content-Type", "text/html");
     response->setBody(RSP_BODY);
     return 0;
