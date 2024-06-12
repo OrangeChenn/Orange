@@ -1,10 +1,18 @@
 #include "config.h"
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 #include <list>
+
+#include "env.h"
+#include "util.h"
 
 namespace orange {
 
 // Config::ConfigVarMap Config::s_datas;
+static orange::Logger::ptr g_logger = ORANGE_LOG_NAME("system");
 
 ConfigVarBase::ptr Config::LookupBase(const std::string& name) {
     RWMutexType::ReadLock lock(GetMutex());
@@ -48,6 +56,37 @@ void Config::LoadFromYaml(const YAML::Node& node) {
                 ss << i.second;
                 val->fromString(ss.str());
             }
+        }
+    }
+}
+
+static std::map<std::string, uint64_t> s_file2modifytime;
+static orange::Mutex s_mutex;
+
+void Config::LoadFromConfDir(const std::string& path) {
+    std::string absolute_path = orange::EnvMrg::GetInstance()->getAbsolutePath(path);
+    std::vector<std::string> files;
+    orange::FSUtil::ListAllFiles(files, absolute_path, ".yml");
+
+    for(auto& i : files) {
+        {
+            struct stat st;
+            if(lstat(i.c_str(), &st) == 0) {
+                orange::Mutex::Lock lock(s_mutex);
+                if(s_file2modifytime[i] == (uint64_t)st.st_mtime) {
+                    continue;
+                }
+                s_file2modifytime[i] = (uint64_t)st.st_mtime;
+            }
+        }
+        try {
+            YAML::Node root = YAML::LoadFile(i);
+            LoadFromYaml(root);
+            ORANGE_LOG_INFO(g_logger) << "LoadConfFile file="
+                    << i << " ok";
+        } catch(...) {
+            ORANGE_LOG_INFO(g_logger) << "LoadConfFile file="
+                    << i << " fail";
         }
     }
 }

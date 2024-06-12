@@ -5,6 +5,8 @@
 #include <sys/syscall.h>
 #include <sys/time.h>
 
+#include <filesystem>
+
 #include "fiber.h"
 #include "log.h"
 
@@ -66,6 +68,19 @@ std::string Time2Str(time_t ts, const std::string& format) {
     char buf[64];
     strftime(buf, sizeof(buf), format.c_str(), &tm);
     return std::string(buf);
+}
+
+void FSUtil::ListAllFiles(std::vector<std::string>& files
+            , const std::string& path, const std::string& filter) {
+    if(!std::filesystem::exists(path) || !std::filesystem::is_directory(path)) {
+        return;
+    }
+    for(const auto& entry : std::filesystem::recursive_directory_iterator(path)) {
+        if(filter.empty() || 
+                (entry.is_regular_file() && entry.path().extension() == filter)) {
+            files.push_back(entry.path());
+        }
+    }
 }
 
 }

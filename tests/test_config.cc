@@ -2,6 +2,7 @@
 #include "../src/config.h"
 #include <yaml-cpp/yaml.h>
 #include <iostream>
+#include "../src/env.h"
 
 
 #if 0
@@ -212,10 +213,19 @@ void test_log() {
     ORANGE_LOG_INFO(system_log) << "hello system";
 }
 
+void test_load_conf() {
+    orange::Config::LoadFromConfDir("conf");
+}
+
 int main(int argc, char** argv) {
     // test_yaml();
     // test_config();
     // test_class();
-    test_log();
+    // test_log();
+    orange::EnvMrg::GetInstance()->init(argc, argv);
+    test_load_conf();
+    std::cout << "==============================" << std::endl;
+    sleep(20);
+    test_load_conf();
     return 0;
 }

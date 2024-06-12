@@ -252,7 +252,24 @@ daemon(1, 0)的作用是将当前进程转变为守护进程，守护进程通�
 - 关闭标准输入、标准输出和标准错误流
 ### 启动参数解析
 
+### 环境变量
+1.读写环境变量
+2.获取程序的绝对路径，基于绝对路径设置cwd
+3.可以通过cmdline，在main函数之前解析好参数
 
+getenv
+setenv
+```shell
+/proc/pid
+
+cwd # 进程启动路径
+exe # 二进制程序真正执行路径
+cmdline #命令行参数，和全局构造函数，在main函数之前就可以解析出参数
+```
+```c++
+// 把软连接转成真正的路径
+ssize_t readlinkat(int dirfd, const char *pathname, char *buf, size_t bufsiz);
+```
 ### 配置加载
 
 ## 参考

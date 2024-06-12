@@ -355,7 +355,6 @@ FileLogAppender::FileLogAppender(const std::string& filename)
 }
 
 void FileLogAppender::log(Logger::ptr logger, LogLevel::Level level, LogEvent::ptr event) {
-    MutexType::Lock lock(m_mutex);
     uint64_t now = time(0);
     if(m_lastTime != now) {
         reopen();

@@ -364,6 +364,7 @@ public:
 
     static ConfigVarBase::ptr LookupBase(const std::string& name);
     static void LoadFromYaml(const YAML::Node& node);
+    static void LoadFromConfDir(const std::string& path);
     static void Visit(std::function<void(ConfigVarBase::ptr)> cb);
 private:
     static RWMutexType& GetMutex() {

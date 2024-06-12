@@ -1,6 +1,8 @@
 #include "env.h"
 
 #include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include <iomanip>
 #include <iostream>
 #include "log.h"
@@ -10,6 +12,15 @@ namespace orange {
 static orange::Logger::ptr g_logger = ORANGE_LOG_NAME("system");
 
 bool Env::init(int argc, char** argv) {
+    char link[1024] = {0};
+    char path[1024] = {0};
+    sprintf(link, "/proc/%d/exe", getpid());
+    readlink(link, path, sizeof(path));
+    m_exe = std::string(path);
+
+    int pos = m_exe.find_last_of("/");
+    m_cwd = m_exe.substr(0, pos) + "/";
+
     m_program = argv[0];
     const char* now_key = nullptr;
     for(int i = 1; i < argc; ++i) {
@@ -86,6 +97,28 @@ void Env::printHelp() {
     for(auto& i : m_helps) {
         std::cout << std::setw(5) << "-" << i.first << " : " << i.second << std::endl;
     }
+}
+
+bool Env::setEnv(const std::string& key, const std::string& val) {
+    return !setenv(key.c_str(), val.c_str(), 1);
+}
+
+std::string Env::getEnv(const std::string& key, const std::string& default_val) {
+    const char* v = getenv(key.c_str());
+    if(v == nullptr) {
+        return default_val;
+    }
+    return v;
+}
+
+std::string Env::getAbsolutePath(const std::string& path) const {
+    if(path.empty()) {
+        return "/";
+    }
+    if(path[0] == '/') {
+        return path;
+    }
+    return m_cwd + path;
 }
 
 } // namespace orange
