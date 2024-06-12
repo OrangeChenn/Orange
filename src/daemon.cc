@@ -30,6 +30,7 @@ static int real_start(int argc, char** argv
 
 static int real_daemon(int argc, char** argv
                     , std::function<int(int, char**)> main_cb) {
+    daemon(1, 0);
     ProcessInfoMrg::GetInstance()->parent_id = getpid();
     ProcessInfoMrg::GetInstance()->parent_start_time = time(0);
     while(true) {
