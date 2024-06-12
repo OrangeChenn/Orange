@@ -26,6 +26,8 @@ class FSUtil {
 public:
     static void ListAllFiles(std::vector<std::string>& files
             , const std::string& path, const std::string& filter);
+    static bool IsRunningPidfile(const std::string& pidfile);
+    static bool Mkdir(const std::string path);
 };
 
 }

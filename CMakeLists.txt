@@ -12,6 +12,7 @@ set(LIB_SRC
     src/config.cc
     src/env.cc
     src/daemon.cc
+    src/application.cc
     src/thread.cc
     src/mutex.cc
     src/fiber.cc
@@ -72,6 +73,7 @@ orange_add_executable(test_uri "tests/test_uri.cc" orange "${LIBS}")
 orange_add_executable(my_http_server "samples/my_http_server.cc" orange "${LIBS}")
 orange_add_executable(test_daemon "tests/test_daemon.cc" orange "${LIBS}")
 orange_add_executable(test_env "tests/test_env.cc" orange "${LIBS}")
+orange_add_executable(test_application "tests/test_application.cc" orange "${LIBS}")
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)

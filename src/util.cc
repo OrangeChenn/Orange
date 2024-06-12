@@ -3,12 +3,18 @@
 #include <execinfo.h>
 #include <unistd.h>
 #include <sys/syscall.h>
+#include <sys/types.h>
+#include <signal.h>
 #include <sys/time.h>
+
+#include <iostream>
 
 #include <filesystem>
 
 #include "fiber.h"
 #include "log.h"
+
+namespace fs = std::filesystem;
 
 namespace orange {
 
@@ -72,14 +78,48 @@ std::string Time2Str(time_t ts, const std::string& format) {
 
 void FSUtil::ListAllFiles(std::vector<std::string>& files
             , const std::string& path, const std::string& filter) {
-    if(!std::filesystem::exists(path) || !std::filesystem::is_directory(path)) {
+    if(!fs::exists(path) || !fs::is_directory(path)) {
         return;
     }
-    for(const auto& entry : std::filesystem::recursive_directory_iterator(path)) {
+    for(const auto& entry : fs::recursive_directory_iterator(path)) {
         if(filter.empty() || 
                 (entry.is_regular_file() && entry.path().extension() == filter)) {
             files.push_back(entry.path());
         }
+    }
+}
+
+bool FSUtil::IsRunningPidfile(const std::string& pidfile) {
+    if(!fs::exists(pidfile)) {
+        return false;
+    }
+    std::ifstream ifs(pidfile);
+    std::string line;
+    if(!ifs || !std::getline(ifs, line)) {
+        return false;
+    }
+    if(line.empty()) {
+        return false;
+    }
+    pid_t pid = atoi(line.c_str());
+    if(pid <= 1) {
+        return false;
+    }
+    if(kill(pid, 0) != 0) {
+        return false;
+    }
+    return true;
+}
+
+bool FSUtil::Mkdir(const std::string path) {
+    if(fs::exists(path)) {
+        return true;
+    }
+    try {
+        fs::create_directories(path);
+        return true;
+    } catch(std::exception& e) {
+        return false;   
     }
 }
 

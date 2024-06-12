@@ -272,6 +272,12 @@ ssize_t readlinkat(int dirfd, const char *pathname, char *buf, size_t bufsiz);
 ```
 ### 配置加载
 
+### Server主体框架
+1.防止重复启动多次（pid）
+2.初始化日志文件路径（/path/to/log）
+3.工作目录的路径。（/path/to/work）
+4.解析httpserver配置，通过配置，启动httpserver
+
 ## 参考
 视频地址：[C++高级教程（从零开始开发服务器框架）](https://www.bilibili.com/video/av53602631/?from=www.sylar.top&vd_source=675503aef6b8806b189e38ef9f181737)
 
