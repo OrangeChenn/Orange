@@ -148,10 +148,11 @@ int Application::main(int argc, char** argv) {
         ORANGE_LOG_ERROR(g_logger) << "open pidfile " << pidfile << " failed";
         return false;
     }
+    ofs << getpid();
+    ofs.flush();
 
     orange::IOManager iom(1);
     iom.schedule(std::bind(&Application::run_fiber, this));
-    ofs << getpid();
     return 0;
 }
 
